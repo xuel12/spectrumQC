@@ -46,7 +46,7 @@ for spec in reader:
     i += 1
 
    
-
+spec['id']
 # reader.binary_array_record.decode
 
 # print(next(reader))
