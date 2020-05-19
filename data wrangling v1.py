@@ -15,6 +15,7 @@ from pyteomics import tandem
 import argparse
 from pyteomics import mzml, auxiliary
 from matplotlib import pyplot as plt
+import pickle
 
 
 # In[3]:
@@ -117,6 +118,10 @@ for key_1 in total_spectrum_dict.keys():
     count_df = spectrum_dict[['specid','interval']].groupby(['specid']).count()
     if (len(count_df[count_df.interval != len(spectrum_range_feature_set)]) > 0):
        print('there is incorrect data frame in ', key_1)
+
+f = open("data/spec_dict.pkl","wb")
+pickle.dump(spectrum_dict,f)
+f.close()
 
 # cnt = 0
 # abnormal_case = {}
