@@ -1,0 +1,6 @@
+scikit-learn
+numpy 
+pandas
+pyteomics
+matplotlib
+lxml
