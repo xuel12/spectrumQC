@@ -43,7 +43,7 @@ def predictDataset(predict_dir, bin_size, predictfile_names):
     
     rename_column = ['spectrum_id']+[str(i*bin_size)+'-'+str(i*bin_size+bin_size) for i in range(bin_num)]+['label']
     # rename_column = ['spectrum_id']+[str(i*10) for i in range(200)]+['label']
-    file_name = predictfile_names[0]
+    # file_name = predictfile_names[0]
     for file_name in predictfile_names:
         # positive_label = evidence[evidence['mzML_name']==str(file_name.split('.')[0])]
         # positive_label = positive_label['MS/MS scan number'].to_list()

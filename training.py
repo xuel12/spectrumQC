@@ -45,7 +45,7 @@ def trainingDataset(temp_dir, bin_size, mzML_file_names):
     
     rename_column = ['spectrum_id']+[str(i*bin_size)+'-'+str(i*bin_size+bin_size) for i in range(bin_num)]+['label']
     # rename_column = ['spectrum_id']+[str(i*10) for i in range(200)]+['label']
-    file_name = mzML_file_names[3]
+    # file_name = mzML_file_names[3]
     # file_name = mzML_file_names[1]
     for file_name in mzML_file_names:
         positive_label = evidence[evidence['mzML_name']==str(file_name.split('.')[0])]

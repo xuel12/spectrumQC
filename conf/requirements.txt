@@ -4,3 +4,6 @@ pandas
 pyteomics
 matplotlib
 lxml
+dash
+natsort
+dash_bio
