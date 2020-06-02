@@ -18,7 +18,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.svm import SVC
 
 try: 
-    os.chdir('/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/spectrumQC/')
+    os.chdir('F:/5500_P1_MVP/')
     print("Current directory is {}".format(os.getcwd()))
 except: 
     print("Something wrong with specified directory. Exception- ", sys.exc_info())
@@ -146,12 +146,16 @@ def modelling_spectrum_quality(temp_dir, model_dir, method, param_grid):
             final_model = clf_opt
             
     print('selected model is returned')
-    
     f = open(model_dir + "training_model.pkl","wb")
     pickle.dump(final_model, f)
     f.close()
-    
-    return(final_model)
+    final_result = {}
+    final_result['X_train'] = X_train
+    final_result['y_train'] = y_train
+    final_result['X_test'] = X_test
+    final_result['y_test'] = y_test
+    final_result['model'] = final_model
+    return(final_result)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ import os
 import pickle
 
 try: 
-    os.chdir('/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/spectrumQC/')
+    os.chdir('F:/5500_P1_MVP/')
     print("Current directory is {}".format(os.getcwd()))
 except: 
     print("Something wrong with specified directory. Exception- ", sys.exc_info())
