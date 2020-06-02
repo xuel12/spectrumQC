@@ -16,6 +16,8 @@ from sklearn.model_selection import GridSearchCV, train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import roc_auc_score
 from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler  # doctest: +SKIP
 
 try: 
     os.chdir('/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/spectrumQC/')
@@ -84,11 +86,16 @@ def modelling_spectrum_quality(temp_dir, model_dir, method, param_grid):
     f = open(temp_dir + 'testset.pkl', 'rb')
     test_dict = pickle.load(f)
     f.close()
-    X_train = train_dict['X_train']
-    y_train = train_dict['y_train']
-    X_test = test_dict['X_test']
-    y_test = test_dict['y_test']
     
+    upperms = 150
+    X_train = train_dict['X_train'].iloc[:,:upperms]
+    y_train = train_dict['y_train']
+    X_test = test_dict['X_test'].iloc[:,:upperms]
+    y_test = test_dict['y_test']
+
+    random.seed(200)
+    #Generate random number due to slowness of svm
+    randomlist_train = random.sample(range(len(X_train)), 10000)    
 
     if method == 'rf' or method == 'both':
         print('Random forest training starts ...')
@@ -97,16 +104,18 @@ def modelling_spectrum_quality(temp_dir, model_dir, method, param_grid):
         param_grid_rf = param_grid['rf']
         # param_grid = { "min_samples_leaf" : [2, 5, 10], "min_samples_split" : [5, 10, 25], "n_estimators": [50, 100, 200]}
         gs = GridSearchCV(estimator=clf, param_grid=param_grid_rf, scoring='f1', cv=3, n_jobs=-1) 
-        gs = gs.fit(X_train, y_train)
+        gs = gs.fit(X_train.iloc[randomlist_train], y_train.iloc[randomlist_train])
     
         clf_opt = gs.best_estimator_
-        clf_opt.fit(X_train,y_train)
+        clf_opt.fit(X_train.iloc[randomlist_train], (y_train.iloc[randomlist_train] == True))
         # feature_scores = pd.Series(clf_opt.feature_importances_, index=X_train.columns).sort_values(ascending=False)
         feature_scores_df = pd.Series(clf_opt.feature_importances_, index=X_train.columns).sort_values(ascending=False).reset_index()
-    #     print('random forest model:')
-    #     print('parameters of optimal model are:',gs.best_params_)
-    #     print('top 10% important features are:',feature_scores_df.head(round(feature_scores_df.shape[0]*0.1)))
-    #     print('AUC score of optimal model is:',roc_auc_score(y_test, clf_opt.predict_proba(X_test)[:, 1]))
+        auc_score = roc_auc_score(y_test, clf_opt.predict_proba(X_test)[:, 1])
+        
+        print('random forest model:')
+        print('parameters of optimal model are:',gs.best_params_)
+        # print('top 10% important features are:',feature_scores_df.head(round(feature_scores_df.shape[0]*0.1)))
+        print('AUC score of optimal model is:',auc_score)
     
         prediction_model = {}
         prediction_model['model_params'] = clf_opt.get_params()
@@ -115,25 +124,54 @@ def modelling_spectrum_quality(temp_dir, model_dir, method, param_grid):
 
     if method == 'svm' or method == 'both':
         print('SVM training starts ...')
+        scaler = StandardScaler()  # doctest: +SKIP
+        # Don't cheat - fit only on training data
+        scaler.fit(X_train)  # doctest: +SKIP
+        X_train_np = scaler.transform(X_train)  # doctest: +SKIP
+        # apply same transformation to test data
+        X_test_np = scaler.transform(X_test)  # doctest: +SKIP
+    
         #SVM modelling:
-        svc = SVC(gamma='auto')
+        svc = SVC(probability=True)
         param_grid_svc = param_grid['svm']
         # param_grid_svc = { "kernel" : ['linear', 'rbf']}
         gs_svc = GridSearchCV(estimator=svc, param_grid=param_grid_svc, scoring='f1', cv=3, n_jobs=-1) 
-        gs_svc = gs_svc.fit(X_train, y_train)
+        gs_svc = gs_svc.fit(X_train_np[randomlist_train,:], (y_train.iloc[randomlist_train] == True).astype(int))
     
         clf_opt_svc = gs_svc.best_estimator_
-        clf_opt_svc.fit(X_train,y_train)
-    #     print('support vector machine:')
-    #     print('parameters of optimal model are:',gs_svc.best_params_)
-    #     print('AUC score of optimal model is:',roc_auc_score(y_test, clf_opt_svc.predict_proba(X_test)[:, 1]))
+        clf_opt_svc.fit(X_train_np[randomlist_train,:],(y_train.iloc[randomlist_train] == True).astype(int))
+        print('support vector machine:')
+        print('parameters of optimal model are:',gs_svc.best_params_)
+        print('AUC score of optimal model is:',roc_auc_score(y_test, clf_opt_svc.predict_proba(X_test_np)[:, 1]))
     
+    if method == 'mlp':
+        scaler = StandardScaler()  # doctest: +SKIP
+        # Don't cheat - fit only on training data
+        scaler.fit(X_train)  # doctest: +SKIP
+        X_train_np = scaler.transform(X_train)  # doctest: +SKIP
+        # apply same transformation to test data
+        X_test_np = scaler.transform(X_test)  # doctest: +SKIP
+        
+        #SVM modelling:
+        mlp = MLPClassifier()
+        param_grid_mlp = param_grid['mlp']
+        gs_mlp = GridSearchCV(estimator=mlp, param_grid=param_grid_mlp, scoring='f1', cv=3, n_jobs=-1) 
+        gs_mlp = gs_mlp.fit(X_train.iloc[randomlist_train], (y_train.iloc[randomlist_train] == True).astype(int))
+
+        clf_opt_mlp = gs_mlp.best_estimator_
+        clf_opt_mlp.fit(X_train.iloc[randomlist_train],(y_train.iloc[randomlist_train] == True).astype(int))
+        print('MLP:')
+        print('parameters of optimal model are:',gs_mlp.best_params_)
+        print('AUC score of optimal model is:',roc_auc_score(y_test, clf_opt_mlp.predict_proba(X_test)[:, 1]))
+
     print('Training is DONE!')
 
     if method == 'rf':
         final_model = clf_opt
     elif method == 'svm':
         final_model = clf_opt_svc
+    elif method == 'mlp':
+        final_model = clf_opt_mlp
     else:
         #select the better model from random forest and SVM by AUC score:
         if roc_auc_score(y_test, clf_opt_svc.predict_proba(X_test)[:, 1])> roc_auc_score(y_test, clf_opt.predict_proba(X_test)[:, 1]):
@@ -151,7 +189,14 @@ def modelling_spectrum_quality(temp_dir, model_dir, method, param_grid):
     pickle.dump(final_model, f)
     f.close()
     
-    return(final_model)
+    final_result = {}
+    final_result['X_train'] = X_train
+    final_result['y_train'] = y_train
+    final_result['X_test'] = X_test
+    final_result['y_test'] = y_test
+    final_result['model'] = final_model
+    
+    return final_result
 
 
 if __name__ == "__main__":
@@ -175,6 +220,7 @@ if __name__ == "__main__":
     trainingDataset(temp_dir, bin_size, mzML_file_names)
     
     param_grid = {'rf': {"min_samples_leaf" : [2], "min_samples_split" : [5], "n_estimators": [50]},\
-                  'svm': {"kernel" : ['linear']}}
+                  'svm': {"kernel" : ['rbf']},
+                  'mlp': {"activation" : ['relu']}}
     model = modelling_spectrum_quality(temp_dir, model_dir, method='rf', param_grid=param_grid)
     

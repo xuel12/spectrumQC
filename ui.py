@@ -138,10 +138,12 @@ def uploaded_files():
             files.append(filename)
     return files
 
+
 def file_download_link(filename):
     """Create a Plotly Dash 'A' element that downloads a file from the app."""
     location = "/download/{}".format(urlquote(filename))
     return html.A(filename, href=location)
+
 
 @app.callback(
     dash.dependencies.Output("file-list", "children"),

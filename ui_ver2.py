@@ -13,7 +13,8 @@ from flask import Flask, send_from_directory
 from random import random
 import plotly.express as px
 
-os.chdir('F:/5500_P1_MVP/data')
+# os.chdir('F:/5500_P1_MVP/data')
+os.chdir('/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/spectrumQC/')
 default_train_df = pd.read_csv('default_train_df.csv')
 default_feature_importance = pd.read_csv('default_feature_importance.csv')
 

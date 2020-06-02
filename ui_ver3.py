@@ -14,9 +14,14 @@ from flask import Flask, send_from_directory
 from random import random
 import plotly.express as px
 
-os.chdir('F:/5500_P1_MVP/data')
-default_train_df = pd.read_csv('default_train_df.csv')
-default_feature_importance = pd.read_csv('default_feature_importance.csv')
+# os.chdir('F:/5500_P1_MVP/data')
+BASE_DIR = '/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/'
+CODE_DIR = BASE_DIR + 'spectrumQC/'
+
+os.chdir(CODE_DIR)
+
+default_train_df = pd.read_csv(CODE_DIR + 'default_train_df.csv')
+default_feature_importance = pd.read_csv(CODE_DIR + 'default_feature_importance.csv')
 default_figure_feature_importance = {
             'data': [
                 {'x': default_feature_importance['m/z scope'].tolist(), 'y': default_feature_importance['importance'].tolist(), 'type': 'bar'}
@@ -95,14 +100,16 @@ def update_output_train(n_clicks, value):  # define the function reaching output
         bin_size = BIN_SIZE
 
         # prepare training set
-        mzML_file_names = wrangling.mzMLfilename(data_dir)
+        # mzML_file_names = wrangling.mzMLfilename(data_dir)
         # parse mzML files to dictionary
-        wrangling.mzML2dict(data_dir, temp_dir, bin_size)
-        wrangling.evidenceDF(data_dir, temp_dir)
-        training.trainingDataset(temp_dir, bin_size, mzML_file_names)
+        # wrangling.mzML2dict(data_dir, temp_dir, bin_size)
+        # wrangling.evidenceDF(data_dir, temp_dir)
+        # training.trainingDataset(temp_dir, bin_size, mzML_file_names)
 
         param_grid = {'rf': {"min_samples_leaf": [2], "min_samples_split": [5], "n_estimators": [50]}, \
-                      'svm': {"kernel": ['linear']}}
+                      'svm': {"kernel": ['linear']},
+                      'mlp': {"activation" : ['relu']}}
+        
         final_result = training.modelling_spectrum_quality(temp_dir, model_dir, method='rf', param_grid=param_grid)
         X_train = final_result['X_train']
         y_train = final_result['y_train']
@@ -175,9 +182,9 @@ def update_output_pred(n_clicks, value):  # define the function reaching output 
         bin_size = BIN_SIZE
 
         # prepare prediction set
-        predictfile_names = wrangling.mzMLfilename(predict_dir)
-        wrangling.mzML2dict(predict_dir, predict_dir, bin_size)
-        prediction.predictDataset(predict_dir, bin_size, predictfile_names)
+        # predictfile_names = wrangling.mzMLfilename(predict_dir)
+        # wrangling.mzML2dict(predict_dir, predict_dir, bin_size)
+        # prediction.predictDataset(predict_dir, bin_size, predictfile_names)
 
         # apply trained model for prediction
         prediction_result = prediction.predict_spectrum_quality(predict_dir, model_dir, out_dir)

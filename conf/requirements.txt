@@ -7,3 +7,4 @@ lxml
 dash
 natsort
 dash_bio
+dash_daq

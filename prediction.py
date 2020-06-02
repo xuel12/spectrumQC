@@ -78,7 +78,8 @@ def predict_spectrum_quality(predict_dir, model_dir, out_dir):
     predict_dict = pickle.load(f)
     f.close()
     
-    X_predict = predict_dict['X_predict']
+    upperms = 150
+    X_predict = predict_dict['X_predict'].iloc[:,:upperms]
     y_predict = np.random.randint(2, size=len(predict_dict['X_predict']))
     
     # load trained model
