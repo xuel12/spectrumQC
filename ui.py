@@ -24,10 +24,11 @@ def update_output(n_clicks, value): #define the function reaching output from in
     BASE_PATH = value #input value gives the base directory
     CODE_DIR = BASE_PATH + "spectrumQC/"
     DATA_DIR = BASE_PATH + "data/"
+    PREDICT_DIR = BASE_PATH + "predict/"
+
     TEMP_DIR = BASE_PATH + "temp/"
     MODEL_DIR = BASE_PATH + "model/"
     OUT_DIR = BASE_PATH + "output/"
-    PREDICT_DIR = BASE_PATH + "predict/"
     BIN_SIZE = 10
 
     os.chdir(CODE_DIR)
@@ -38,6 +39,9 @@ def update_output(n_clicks, value): #define the function reaching output from in
     model_dir = MODEL_DIR
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
+    out_dir = OUT_DIR
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
     bin_size = BIN_SIZE
 
     # prepare training set

@@ -1,7 +1,7 @@
 #!/localdata0/Guests/flynne03/Python/conda/miniconda3/envs/py_ms/bin/python
 
 import argparse
-from dashapp.qc import app as qc_app
+# from dashapp.qc import app as qc_app
 from dashapp.fileIO import app as file_app
 
 if __name__ == "__main__":
