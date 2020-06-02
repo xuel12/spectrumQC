@@ -9,8 +9,6 @@ from dash.dependencies import Input, Output
 from subprocess import call
 from dash.exceptions import PreventUpdate
 
-from wrangling import evidenceDF
-
 UPLOAD_DIRECTORY = "/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/temp1"
 DATA_DIR = "/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/data"
 TEMP_DIR = "/Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/temp"
@@ -120,25 +118,6 @@ def update_output(uploaded_filenames, uploaded_file_contents):
     else:
         return [html.Li(file_download_link(filename)) for filename in files]
 
-@app.callback(
-    dash.dependencies.Output('output-container-button', 'children'),
-    [dash.dependencies.Input('button', 'n_clicks')])
-def run_script_onClick(n_clicks):
-    # Don't run unless the button has been pressed...
-    if not n_clicks:
-        raise PreventUpdate
-
-    script_path = 'python /Users/xuel12/Documents/MSdatascience/DS5500datavis/project1/spectrumQC/prediction.py'
-    # The output of a script is always done through a file dump.
-    # Let's just say this call dumps some data into an `output_file`
-    call(["python3", script_path])
-
-    # # Load your output file with "some code"
-    # output_content = some_loading_function('output file')
-
-    # Now return.
-    # return output_content
-    return 1
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=8888)
