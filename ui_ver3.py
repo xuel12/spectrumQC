@@ -38,13 +38,43 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 server = Flask(__name__)
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+# @app.callback(dash.dependencies.Output('intermediate-value-1', 'children'),
+#               [dash.dependencies.Input('input-on-submit', 'value')])
+@server.route("/download/<path:path>")
+def download(path):
+    """Serve a file from the upload directory."""
+    BASE_PATH = BASE_DIR  # input value gives the base directory
+    OUT_DIR = BASE_PATH + "output/"
+
+    return send_from_directory(OUT_DIR, path, as_attachment=True)
+
 app.layout = html.Div([
     html.H1("Mass spec spectrum QC"),
     html.H4("Please specify the base directory"),
     # html.Div(dcc.Input(id='input-on-submit', type='text', value='F:/5500_P1_MVP/')), #add an input bar
     html.Div(dcc.Input(id='input-on-submit', type='text',
-                       value='F:/5500_P1_MVP/')),  # add an input bar
+                       value=BASE_DIR)),  # add an input bar
     html.H2("Training"),
+    html.H6("---------------------------------------------------------------------------------------------"),
+    html.H4('Hyper-parameter tuning scope selection'),
+    html.H6("[NUMBER OF ESTIMATORS]"),
+    html.Div(id='output-container-range-slider'),
+    dcc.RangeSlider(
+        id='n_estimators_RangeSlider',
+        min=50,
+        max=250,
+        step=50,
+        value=[50, 100],marks = {50:'50',100:'100',150:'150',200:'200',250:'250'}
+    ),
+    html.H6("[MINIMAL NUMBER OF SAMPLES IN A LEAF]"),
+    html.Div(id='output-min_samples_leaf_RangeSlider'),
+    dcc.RangeSlider(
+        id='min_samples_leaf_RangeSlider',
+        min=2,
+        max=32,
+        step=2,
+        value=[2, 8],marks = {2:'2',4:'4',8:'8',16:'16',32:'32'}
+    ),
     html.Button('Start/stop training', id='submit-val', n_clicks=0),  # add a button to start training
     daq.Indicator(id='train-indicator',label="Training in process",value=True,color='grey'),
     html.Div(id='spectrum quality training',children='AUC score:___'),  # add a section to store and display output
@@ -53,6 +83,7 @@ app.layout = html.Div([
     html.Button('Start/stop prediction', id='submit-pred', n_clicks=0),  # add a button to start training
     daq.Indicator(id='predict-indicator',label="Prediction in process",value=True,color='grey'),
     html.Div(id='spectrum quality prediction',children='prediction result-positive rate:___'),  # add a section to store and display output
+    
     html.H3("File List"),
     html.Ul(id="file-list"),
     # Hidden div inside the app that stores the intermediate value
@@ -193,21 +224,11 @@ def update_output_pred(n_clicks, value):  # define the function reaching output 
         return ''
 
 
-# @app.callback(dash.dependencies.Output('intermediate-value-1', 'children'),
-#               [dash.dependencies.Input('input-on-submit', 'value')])
-@server.route("/download/<path:path>")
-def download(path):
-    """Serve a file from the upload directory."""
-    BASE_PATH = "F:/5500_P1_MVP/"  # input value gives the base directory
-    OUT_DIR = BASE_PATH + "output/"
-
-    return send_from_directory(OUT_DIR, path, as_attachment=True)
-
 
 # @app.callback(dash.dependencies.Output('intermediate-value-2', 'children'),
 #               [dash.dependencies.Input('input-on-submit', 'value')])
 def uploaded_files():
-    BASE_PATH = "F:/5500_P1_MVP/"  # input value gives the base directory
+    BASE_PATH = BASE_DIR  # input value gives the base directory
     OUT_DIR = BASE_PATH + "output/"
 
     """List the files in the upload directory."""
